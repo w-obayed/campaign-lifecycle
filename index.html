@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Lifecycle Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .lifecycle-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .lifecycle-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        
+        .lifecycle-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .step:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .step.active {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 5px solid #4CAF50;
+        }
+        
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .step-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .step-arrow {
+            text-align: center;
+            margin: 5px 0;
+            color: #ffcc00;
+            font-size: 1.5rem;
+        }
+        
+        .stats-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+        }
+        
+        .progress-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1.5s ease;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-3px);
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #0b7dda;
+            transform: translateY(-3px);
+        }
+        
+        .btn-reset {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background: #d32f2f;
+            transform: translateY(-3px);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Campaign Lifecycle Dashboard</h1>
+            <p class="subtitle">Visualize and manage your email campaign from creation to completion</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="lifecycle-container">
+                <h2 class="lifecycle-title">Campaign Lifecycle</h2>
+                <div class="lifecycle-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-icon">
+                            <i class="fas fa-pencil-alt"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">CREATE</div>
+                            <div class="step-desc">Status: <strong>draft</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-arrow">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="step" id="step2">
+                        <div class="step-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">LAUNCH</div>
+                            <div class="step-desc">Status: <strong>active</strong>, pendingLeads = all leads</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-arrow">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="step" id="step3">
+                        <div class="step-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">SENDING</div>
+                            <div class="step-desc">Daily batches, pendingLeads decreases</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-arrow">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="step" id="step4">
+                        <div class="step-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">LAST EMAIL SENT</div>
+                            <div class="step-desc">stats.sent === stats.totalLeads</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-arrow">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="step" id="step5">
+                        <div class="step-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">✅ AUTO-COMPLETE</div>
+                            <div class="step-desc">
+                                <ul>
+                                    <li>Status: <strong>completed</strong></li>
+                                    <li>Campaign stops automatically</li>
+                                    <li>Note added with timestamp</li>
+                                    <li>User notification sent</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <h2 class="stats-title">Campaign Statistics</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Leads</div>
+                        <div class="stat-value" id="totalLeads">1,250</div>
+                        <div class="stat-desc">All potential recipients</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Pending Leads</div>
+                        <div class="stat-value" id="pendingLeads">1,250</div>
+                        <div class="stat-desc">Remaining to send</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Emails Sent</div>
+                        <div class="stat-value" id="sentLeads">0</div>
+                        <div class="stat-desc">Successfully delivered</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Completion</div>
+                        <div class="stat-value" id="completionRate">0%</div>
+                        <div class="stat-desc">Campaign progress</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-title">Campaign Progress</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-primary" id="launchBtn">
+                        <i class="fas fa-rocket"></i> Launch Campaign
+                    </button>
+                    <button class="btn btn-secondary" id="simulateBtn">
+                        <i class="fas fa-forward"></i> Simulate Sending
+                    </button>
+                    <button class="btn btn-reset" id="resetBtn">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        Campaign completed successfully! All emails have been sent.
+    </div>
+
+    <script>
+        // Initialize state
+        let currentStep = 1;
+        let totalLeads = 1250;
+        let pendingLeads = totalLeads;
+        let sentLeads = 0;
+        let isCampaignActive = false;
+        let sendingInterval = null;
+        
+        // DOM Elements
+        const stepElements = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4'),
+            document.getElementById('step5')
+        ];
+        
+        const totalLeadsElement = document.getElementById('totalLeads');
+        const pendingLeadsElement = document.getElementById('pendingLeads');
+        const sentLeadsElement = document.getElementById('sentLeads');
+        const completionRateElement = document.getElementById('completionRate');
+        const progressFillElement = document.getElementById('progressFill');
+        
+        const launchBtn = document.getElementById('launchBtn');
+        const simulateBtn = document.getElementById('simulateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const notification = document.getElementById('notification');
+        
+        // Update statistics display
+        function updateStats() {
+            totalLeadsElement.textContent = totalLeads.toLocaleString();
+            pendingLeadsElement.textContent = pendingLeads.toLocaleString();
+            sentLeadsElement.textContent = sentLeads.toLocaleString();
+            
+            const completionRate = Math.round((sentLeads / totalLeads) * 100);
+            completionRateElement.textContent = `${completionRate}%`;
+            progressFillElement.style.width = `${completionRate}%`;
+        }
+        
+        // Update step visualization
+        function updateSteps() {
+            stepElements.forEach((step, index) => {
+                if (index < currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+        
+        // Launch campaign
+        launchBtn.addEventListener('click', function() {
+            if (currentStep === 1) {
+                currentStep = 2;
+                isCampaignActive = true;
+                updateSteps();
+                showNotification('Campaign launched! Status changed to active.');
+                
+                // Enable simulate button
+                simulateBtn.disabled = false;
+            }
+        });
+        
+        // Simulate sending process
+        simulateBtn.addEventListener('click', function() {
+            if (currentStep === 2) {
+                currentStep = 3;
+                updateSteps();
+                showNotification('Sending process started. Daily batches being sent.');
+                
+                // Start the sending simulation
+                startSendingSimulation();
+            } else if (currentStep === 3) {
+                // Manually advance to next step if already in sending
+                advanceSending();
+            }
+        });
+        
+        // Start the sending simulation
+        function startSendingSimulation() {
+            sendingInterval = setInterval(function() {
+                advanceSending();
+            }, 2000);
+        }
+        
+        // Advance the sending process
+        function advanceSending() {
+            if (pendingLeads > 0) {
+                // Simulate sending a batch of emails
+                const batchSize = Math.min(Math.floor(Math.random() * 50) + 10, pendingLeads);
+                sentLeads += batchSize;
+                pendingLeads -= batchSize;
+                
+                updateStats();
+                
+                // Check if we've sent all emails
+                if (pendingLeads === 0) {
+                    currentStep = 4;
+                    updateSteps();
+                    showNotification('All emails sent! Campaign ready for completion.');
+                    
+                    // Auto-complete after a short delay
+                    setTimeout(function() {
+                        currentStep = 5;
+                        updateSteps();
+                        showNotification('Campaign completed! All tasks finished.');
+                        isCampaignActive = false;
+                        clearInterval(sendingInterval);
+                    }, 1500);
+                }
+            }
+        }
+        
+        // Reset the campaign
+        resetBtn.addEventListener('click', function() {
+            currentStep = 1;
+            pendingLeads = totalLeads;
+            sentLeads = 0;
+            isCampaignActive = false;
+            
+            if (sendingInterval) {
+                clearInterval(sendingInterval);
+                sendingInterval = null;
+            }
+            
+            updateSteps();
+            updateStats();
+            simulateBtn.disabled = true;
+            showNotification('Campaign reset to draft status.');
+        });
+        
+        // Show notification
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Initialize
+        updateStats();
+        updateSteps();
+        simulateBtn.disabled = true;
+    </script>
+</body>
+</html>
